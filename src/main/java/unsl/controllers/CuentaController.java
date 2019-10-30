@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import unsl.entities.Cuenta;
 import unsl.entities.ResponseError;
+import unsl.entities.User;
 import unsl.services.CuentaService;
 
 @RestController
@@ -50,11 +51,15 @@ public class CuentaController {
     @PostMapping(value = "/cuenta")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Object createCuenta(@RequestBody Cuenta cuenta) {
+    public Object createCuenta(@RequestBody Cuenta cuenta) throws Exception {
         long titular = cuenta.getTitular();
         Cuenta.Moneda moneda = cuenta.getMoneda();
 
         List<Cuenta> cuentasTitular = cuentaService.findByTitular(titular); //Recupero las cuentas, en caso de que las hubieran, con el titular de la cuenta que se quiere crear.
+
+        if(cuentaService.getCuentaC(cuenta) == null){
+            return new ResponseEntity(new ResponseError(400, String.format("Cliente de la cuenta inexistente")), HttpStatus.BAD_REQUEST);
+        }
 
         if(cuenta.getMoneda() == null){
             return new ResponseEntity(new ResponseError(400, String.format("moneda not found")), HttpStatus.BAD_REQUEST);
