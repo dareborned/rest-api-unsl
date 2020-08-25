@@ -21,35 +21,31 @@ public class CuentaService {
     @Autowired
     CuentaRepository cuentaRepository;
 
+    //Crear una cuenta nueva
     public Cuenta saveCuenta(Cuenta cuenta) {
         return cuentaRepository.save(cuenta);
     }
 
+    //Recuperar todas las cuentas
     public List<Cuenta> getAll() {
         return cuentaRepository.findAll();
     }
 
+    //Recuperar una cuenta por Id
     public Cuenta getCuenta(long cuentaId) { return cuentaRepository.findById(cuentaId).orElse(null); }
 
+    //Recuperar una cuenta por titular
     public List <Cuenta> findByTitular(long titular){ return cuentaRepository.findByTitular(titular); }
 
-    public Cuenta updateEstado(Cuenta updateCuenta){
-        Cuenta cuenta = cuentaRepository.findById(updateCuenta.getId()).orElse(null);
-        if(cuenta == null){
-            return null;
-        }
+    //Actualizar estado de una cuenta(recuperada por ID)
+    public Cuenta updateEstado(Cuenta cuenta){return cuentaRepository.save(cuenta);}
 
-        cuenta.setEstado(Cuenta.Estado.BAJA);
-        return cuentaRepository.save(cuenta);
-    }
-
-    @Retryable( maxAttempts = 4, backoff = @Backoff(1000))
+    //Recuperar una cuenta 
     public User getCuentaC(Cuenta cuenta) throws Exception {
         User exito;
         try {
             RestTemplate restTemplate = new RestTemplate();
-
-            exito = restTemplate.getForObject("http://localhost:8080/users/" + cuenta.getId(), User.class);
+            exito = restTemplate.getForObject("http://localhost:8888/users/" + cuenta.getTitular(), User.class);
         }catch(Exception e){
             throw new Exception(buildMessageError(e));
         }
